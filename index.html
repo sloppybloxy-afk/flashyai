@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashly - Study Smarter with Spaced Repetition</title>
+    <title>Flashlyai - Study Smarter with AI</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,15 +13,79 @@
             <div class="header-content">
                 <div class="logo">
                     <div class="logo-icon">📚</div>
-                    <span class="logo-text">Flashly</span>
+                    <span class="logo-text">Flashlyai</span>
                 </div>
                 <div class="header-icons">
-                    <button class="icon-btn" title="Search">🔍</button>
-                    <button class="icon-btn" title="View">📊</button>
-                    <button class="icon-btn" title="Settings">⚙️</button>
+                    <button class="icon-btn" title="Search" onclick="toggleSearchModal()">🔍</button>
+                    <button class="icon-btn" title="View Stats" onclick="toggleStatsModal()">📊</button>
+                    <button class="icon-btn" title="Settings" onclick="toggleSettingsModal()">⚙️</button>
                 </div>
             </div>
         </header>
+
+        <!-- Search Modal -->
+        <div id="searchModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Search Decks</h2>
+                    <button class="modal-close" onclick="toggleSearchModal()">✕</button>
+                </div>
+                <input type="text" id="searchInput" class="form-input" placeholder="Search your decks..." onkeyup="searchDecks()">
+                <div id="searchResults" style="margin-top: 16px;"></div>
+            </div>
+        </div>
+
+        <!-- Stats Modal -->
+        <div id="statsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Your Statistics</h2>
+                    <button class="modal-close" onclick="toggleStatsModal()">✕</button>
+                </div>
+                <div class="stats-modal-grid">
+                    <div class="stat-modal-item">
+                        <h3>Total Decks</h3>
+                        <p id="totalDecksCount" class="stat-number-large">0</p>
+                    </div>
+                    <div class="stat-modal-item">
+                        <h3>Total Cards</h3>
+                        <p id="totalCardsCount" class="stat-number-large">0</p>
+                    </div>
+                    <div class="stat-modal-item">
+                        <h3>Cards Mastered</h3>
+                        <p id="masteredCount" class="stat-number-large">0</p>
+                    </div>
+                    <div class="stat-modal-item">
+                        <h3>Study Streak</h3>
+                        <p id="streakCount" class="stat-number-large">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="modal-close" onclick="toggleSettingsModal()">✕</button>
+                </div>
+                <div class="settings-group">
+                    <h3>Theme</h3>
+                    <button class="btn btn-secondary btn-large" onclick="toggleTheme()">🌙 Toggle Dark Mode</button>
+                </div>
+                <div class="settings-group">
+                    <h3>Data Management</h3>
+                    <button class="btn btn-secondary btn-large" onclick="exportData()">📥 Export Data</button>
+                    <button class="btn btn-secondary btn-large" onclick="clearAllData()" style="margin-top: 8px; background-color: #ffcccc; border-color: #cc0000;">🗑️ Clear All Data</button>
+                </div>
+                <div class="settings-group">
+                    <h3>About</h3>
+                    <p>Flashlyai v1.0</p>
+                    <p style="color: #666; font-size: 14px; margin-top: 8px;">Study smarter with AI-powered flashcard generation</p>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -30,7 +94,7 @@
                 <div class="welcome-card">
                     <p class="welcome-label">WELCOME BACK</p>
                     <h1>All caught up. Add new cards or relax.</h1>
-                    <p class="welcome-description">Study smarter with spaced repetition. Flashly schedules each card for the exact moment you're about to forget it.</p>
+                    <p class="welcome-description">Study smarter with spaced repetition. Flashlyai schedules each card for the exact moment you're about to forget it.</p>
                     
                     <div class="button-group">
                         <button class="btn btn-primary" onclick="switchView('decksView')">📚 Browse Decks</button>
@@ -90,7 +154,7 @@
                 <!-- Jump Back In -->
                 <div class="section-header">
                     <h3>Jump back in</h3>
-                    <a href="#" class="see-all">See all decks →</a>
+                    <a href="#" class="see-all" onclick="switchView('decksView'); return false;">See all decks →</a>
                 </div>
                 <div class="empty-state">
                     <div class="empty-image">😴</div>
@@ -124,7 +188,7 @@
                 <div class="view-header">
                     <p class="section-label">AI POWERED</p>
                     <h1>Generate flashcards with AI</h1>
-                    <p class="section-description">Describe a topic, paste text, or list concepts. Claude Sonnet 4.5 will craft accurate question-answer pairs and drop them into your deck.</p>
+                    <p class="section-description">Describe a topic, paste text, or list concepts. Flashlyai will craft accurate question-answer pairs and drop them into your deck.</p>
                 </div>
 
                 <div class="form-card">
@@ -169,7 +233,7 @@
                     <ol>
                         <li>Pick a deck</li>
                         <li>Describe the topic or paste study notes</li>
-                        <li>Claude generates structured Q&A pairs</li>
+                        <li>AI generates structured Q&A pairs</li>
                         <li>Cards land in your deck, ready for SR review</li>
                     </ol>
                 </div>
@@ -180,7 +244,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>Built for focused study sessions</p>
+            <p>Built for focused study sessions with Flashlyai</p>
         </footer>
     </div>
 
