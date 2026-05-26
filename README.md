@@ -10,7 +10,7 @@ A beautiful flashcard application built with HTML, CSS, and JavaScript.
 - 📱 Fully responsive design
 
 ## Live Demo
-Visit: https://flashyai.github.io/
+Visit: https://sloppybloxy-afk.github.io/flashyai/ 
 
 ## Getting Started
 1. Clone this repository
