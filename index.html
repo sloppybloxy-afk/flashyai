@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashly - Study Smarter with Spaced Repetition</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">📚</div>
+                    <span class="logo-text">Flashly</span>
+                </div>
+                <div class="header-icons">
+                    <button class="icon-btn" title="Search">🔍</button>
+                    <button class="icon-btn" title="View">📊</button>
+                    <button class="icon-btn" title="Settings">⚙️</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Section -->
+            <section class="welcome-section" id="homeView">
+                <div class="welcome-card">
+                    <p class="welcome-label">WELCOME BACK</p>
+                    <h1>All caught up. Add new cards or relax.</h1>
+                    <p class="welcome-description">Study smarter with spaced repetition. Flashly schedules each card for the exact moment you're about to forget it.</p>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="switchView('decksView')">📚 Browse Decks</button>
+                        <button class="btn btn-secondary" onclick="switchView('aiGenerateView')">✨ Generate with AI</button>
+                    </div>
+
+                    <div class="welcome-image">
+                        <div class="cards-illustration">
+                            <div class="card card1">A</div>
+                            <div class="card card2">B</div>
+                            <div class="card card3">?</div>
+                            <div class="card card4">✦</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p class="stat-label">DUE TODAY</p>
+                        <div class="stat-content">
+                            <div class="stat-number">0</div>
+                            <div class="stat-icon">🎯</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">TOTAL CARDS</p>
+                        <div class="stat-content">
+                            <div class="stat-number">0</div>
+                            <div class="stat-icon">📑</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">MASTERED</p>
+                        <div class="stat-content">
+                            <div class="stat-number">0</div>
+                            <div class="stat-icon">📈</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">STREAK</p>
+                        <div class="stat-content">
+                            <div class="stat-number">0</div>
+                            <div class="stat-icon">🔥</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Activity -->
+                <div class="activity-card">
+                    <h3>LAST 30 DAYS</h3>
+                    <h2>Review activity</h2>
+                    <p class="activity-text">Reviews today: 0</p>
+                    <div class="activity-chart"></div>
+                </div>
+
+                <!-- Jump Back In -->
+                <div class="section-header">
+                    <h3>Jump back in</h3>
+                    <a href="#" class="see-all">See all decks →</a>
+                </div>
+                <div class="empty-state">
+                    <div class="empty-image">😴</div>
+                    <h3>No decks yet. Create your first one.</h3>
+                    <button class="btn btn-primary" onclick="switchView('decksView')">+ Create a deck</button>
+                </div>
+            </section>
+
+            <!-- All Decks View -->
+            <section class="decks-view" id="decksView" style="display: none;">
+                <div class="view-header">
+                    <h2>Your Library</h2>
+                    <h1>All Decks</h1>
+                </div>
+
+                <button class="btn btn-primary btn-large" onclick="showCreateDeckForm()">+ New Deck</button>
+
+                <div class="deck-list" id="deckList">
+                    <div class="empty-state">
+                        <div class="empty-image">😴📦</div>
+                        <h3>No decks yet</h3>
+                        <p>Start by creating a deck, then add cards manually or have AI generate them for you.</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="switchView('homeView')">← Back to Home</button>
+            </section>
+
+            <!-- AI Generate View -->
+            <section class="ai-generate-view" id="aiGenerateView" style="display: none;">
+                <div class="view-header">
+                    <p class="section-label">AI POWERED</p>
+                    <h1>Generate flashcards with AI</h1>
+                    <p class="section-description">Describe a topic, paste text, or list concepts. Claude Sonnet 4.5 will craft accurate question-answer pairs and drop them into your deck.</p>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-group">
+                        <label>TARGET DECK</label>
+                        <select id="targetDeck" class="form-input">
+                            <option>Create a deck first</option>
+                        </select>
+                        <small>Create a deck to start generating.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>TOPIC OR SOURCE TEXT</label>
+                        <textarea id="topicText" class="form-input" placeholder="e.g. Photosynthesis: light reactions, Calvin cycle, key enzymes..." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>HOW MANY CARDS?</label>
+                        <select id="cardCount" class="form-input">
+                            <option>10 cards</option>
+                            <option>5 cards</option>
+                            <option>15 cards</option>
+                            <option>20 cards</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>DIFFICULTY</label>
+                        <select id="difficulty" class="form-input">
+                            <option>Intermediate</option>
+                            <option>Beginner</option>
+                            <option>Advanced</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary btn-large" onclick="generateCards()">✨ Generate cards</button>
+                </div>
+
+                <div class="how-it-works">
+                    <div class="how-image">🧠</div>
+                    <h3>How it works</h3>
+                    <ol>
+                        <li>Pick a deck</li>
+                        <li>Describe the topic or paste study notes</li>
+                        <li>Claude generates structured Q&A pairs</li>
+                        <li>Cards land in your deck, ready for SR review</li>
+                    </ol>
+                </div>
+
+                <button class="btn btn-secondary" onclick="switchView('homeView')">← Back to Home</button>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built for focused study sessions</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
