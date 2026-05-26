@@ -12,6 +12,109 @@ function switchView(viewId) {
     window.scrollTo(0, 0);
 }
 
+// Modal Management
+function toggleSearchModal() {
+    const modal = document.getElementById('searchModal');
+    modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+    if (modal.style.display === 'block') {
+        document.getElementById('searchInput').focus();
+    }
+}
+
+function toggleStatsModal() {
+    const modal = document.getElementById('statsModal');
+    modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+    if (modal.style.display === 'block') {
+        updateStatsModal();
+    }
+}
+
+function toggleSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+}
+
+// Close modals when clicking outside
+window.addEventListener('click', function(event) {
+    const searchModal = document.getElementById('searchModal');
+    const statsModal = document.getElementById('statsModal');
+    const settingsModal = document.getElementById('settingsModal');
+    
+    if (event.target === searchModal) searchModal.style.display = 'none';
+    if (event.target === statsModal) statsModal.style.display = 'none';
+    if (event.target === settingsModal) settingsModal.style.display = 'none';
+});
+
+// Search functionality
+function searchDecks() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const results = document.getElementById('searchResults');
+    
+    if (!input.trim()) {
+        results.innerHTML = '';
+        return;
+    }
+    
+    const filtered = decks.filter(deck => deck.name.toLowerCase().includes(input));
+    
+    if (filtered.length === 0) {
+        results.innerHTML = '<p style="color: #666;">No decks found</p>';
+    } else {
+        results.innerHTML = filtered.map(deck => `
+            <div class="search-result-item" onclick="selectSearchDeck(${deck.id})">
+                <h4>${deck.name}</h4>
+                <p>${deck.cards.length} cards</p>
+            </div>
+        `).join('');
+    }
+}
+
+function selectSearchDeck(deckId) {
+    toggleSearchModal();
+    switchView('decksView');
+}
+
+// Stats Modal Update
+function updateStatsModal() {
+    const totalCards = decks.reduce((sum, deck) => sum + deck.cards.length, 0);
+    const masteredCards = decks.reduce((sum, deck) => sum + (deck.mastered || 0), 0);
+    const totalStreak = decks.reduce((max, deck) => Math.max(max, deck.streak || 0), 0);
+    
+    document.getElementById('totalDecksCount').textContent = decks.length;
+    document.getElementById('totalCardsCount').textContent = totalCards;
+    document.getElementById('masteredCount').textContent = masteredCards;
+    document.getElementById('streakCount').textContent = totalStreak;
+}
+
+// Settings
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+}
+
+function exportData() {
+    const data = JSON.stringify(decks, null, 2);
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+    element.setAttribute('download', 'flashlyai_decks.json');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    alert('✅ Data exported successfully!');
+}
+
+function clearAllData() {
+    if (confirm('⚠️ Are you sure? This will delete all decks and cards. This cannot be undone.')) {
+        decks = [];
+        saveDecks();
+        renderDecks();
+        updateDeckDropdown();
+        toggleSettingsModal();
+        alert('✅ All data cleared');
+    }
+}
+
 // Deck Management
 let decks = JSON.parse(localStorage.getItem('flashyDecks')) || [];
 
@@ -54,7 +157,7 @@ function renderDecks() {
             <p style="color: #666; margin: 8px 0;">${deck.cards.length} cards</p>
             <div style="display: flex; gap: 8px; margin-top: 12px; font-size: 12px;">
                 <span>📝 ${deck.cards.length}</span>
-                <span>🔥 ${deck.streak}</span>
+                <span>🔥 ${deck.streak || 0}</span>
             </div>
         </div>
     `).join('');
@@ -124,4 +227,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.logo').addEventListener('click', function() {
         switchView('homeView');
     });
+    
+    // Load theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
 });
