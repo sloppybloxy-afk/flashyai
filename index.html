@@ -23,6 +23,21 @@
             </div>
         </header>
 
+        <!-- Auth Modal -->
+        <div id="authModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Sign In to Flashlyai</h2>
+                </div>
+                <div class="form-group">
+                    <label>EMAIL</label>
+                    <input type="email" id="authEmail" class="form-input" placeholder="Enter your email" onkeypress="if(event.key==='Enter') loginWithEmail()">
+                    <small>Your data will be saved to your account</small>
+                </div>
+                <button class="btn btn-primary btn-large" onclick="loginWithEmail()">✉️ Sign In with Email</button>
+            </div>
+        </div>
+
         <!-- Search Modal -->
         <div id="searchModal" class="modal" style="display: none;">
             <div class="modal-content">
@@ -75,8 +90,18 @@
                     <button class="btn btn-secondary btn-large" onclick="toggleTheme()">🌙 Toggle Dark Mode</button>
                 </div>
                 <div class="settings-group">
+                    <h3>Account</h3>
+                    <div id="userAuthSection" style="display: none;">
+                        <button class="btn btn-secondary btn-large" onclick="toggleAuthModal()">✉️ Sign In with Email</button>
+                    </div>
+                    <div id="userProfileSection" style="display: none;">
+                        <p style="margin-bottom: 12px;">Signed in as: <strong id="userEmail"></strong></p>
+                        <button class="btn btn-secondary btn-large" style="background-color: #ffcccc; border-color: #cc0000;" onclick="logout()">🚪 Logout</button>
+                    </div>
+                </div>
+                <div class="settings-group">
                     <h3>About</h3>
-                    <p>Flashlyai v1.0</p>
+                    <p>Flashlyai v2.0</p>
                     <p style="margin-top: 8px;">Study smarter with AI-powered flashcard generation</p>
                 </div>
             </div>
@@ -188,23 +213,23 @@
 
                 <div class="form-card">
                     <div class="form-group">
-                        <label>TARGET DECK</label>
+                        <label>TARGET DECK (OPTIONAL)</label>
                         <select id="targetDeck" class="form-input">
-                            <option>Create a deck first</option>
+                            <option value="">Create a new deck</option>
                         </select>
-                        <small>Create a deck to start generating.</small>
+                        <small>Leave blank to create a new deck automatically</small>
                     </div>
 
                     <div class="form-group">
                         <label>TOPIC OR SOURCE TEXT</label>
-                        <textarea id="topicText" class="form-input" placeholder="e.g. Photosynthesis: light reactions, Calvin cycle, key enzymes..." rows="4"></textarea>
+                        <textarea id="topicText" class="form-input" placeholder="e.g. Python basics: variables, loops, functions, data types" rows="4"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>HOW MANY CARDS?</label>
                         <select id="cardCount" class="form-input">
-                            <option>10 cards</option>
                             <option>5 cards</option>
+                            <option selected>10 cards</option>
                             <option>15 cards</option>
                             <option>20 cards</option>
                         </select>
@@ -213,8 +238,8 @@
                     <div class="form-group">
                         <label>DIFFICULTY</label>
                         <select id="difficulty" class="form-input">
-                            <option>Intermediate</option>
                             <option>Beginner</option>
+                            <option selected>Intermediate</option>
                             <option>Advanced</option>
                         </select>
                     </div>
@@ -226,10 +251,10 @@
                     <div class="how-image">🧠</div>
                     <h3>How it works</h3>
                     <ol>
-                        <li>Pick a deck</li>
-                        <li>Describe the topic or paste study notes</li>
-                        <li>AI generates structured Q&A pairs</li>
-                        <li>Cards land in your deck, ready for SR review</li>
+                        <li>Enter a topic or paste study material</li>
+                        <li>Pick a deck or we'll create one for you</li>
+                        <li>AI generates smart Q&A pairs based on difficulty</li>
+                        <li>Cards land in your deck, ready to study</li>
                     </ol>
                 </div>
 

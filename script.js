@@ -1,3 +1,71 @@
+// Authentication
+let currentUser = null;
+const API_URL = 'https://api.example.com'; // Replace with your backend
+
+function loginWithEmail() {
+    const email = document.getElementById('authEmail').value.trim();
+    if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+    }
+    
+    // Simulate authentication - in production, this would call your backend
+    currentUser = {
+        email: email,
+        id: btoa(email), // Simple encoding for demo
+        createdAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    localStorage.setItem('userEmail', email);
+    
+    // Load user's decks from localStorage (in production, fetch from server)
+    loadUserData();
+    
+    document.getElementById('authModal').style.display = 'none';
+    document.getElementById('userEmail').textContent = email;
+    document.getElementById('userAuthSection').style.display = 'none';
+    document.getElementById('userProfileSection').style.display = 'flex';
+    
+    switchView('homeView');
+    alert(`✅ Welcome, ${email}!`);
+}
+
+function logout() {
+    if (confirm('Are you sure you want to log out?')) {
+        currentUser = null;
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('flashyDecks');
+        
+        decks = [];
+        renderDecks();
+        updateDeckDropdown();
+        
+        document.getElementById('userAuthSection').style.display = 'flex';
+        document.getElementById('userProfileSection').style.display = 'none';
+        document.getElementById('authEmail').value = '';
+        
+        switchView('homeView');
+        alert('Logged out successfully');
+    }
+}
+
+function toggleAuthModal() {
+    const modal = document.getElementById('authModal');
+    modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+}
+
+function loadUserData() {
+    // In production, fetch from server
+    const savedDecks = localStorage.getItem('flashyDecks');
+    if (savedDecks) {
+        decks = JSON.parse(savedDecks);
+        renderDecks();
+        updateDeckDropdown();
+    }
+}
+
 // View Management
 function switchView(viewId) {
     // Hide all views
@@ -40,10 +108,12 @@ window.addEventListener('click', function(event) {
     const searchModal = document.getElementById('searchModal');
     const statsModal = document.getElementById('statsModal');
     const settingsModal = document.getElementById('settingsModal');
+    const authModal = document.getElementById('authModal');
     
     if (event.target === searchModal) searchModal.style.display = 'none';
     if (event.target === statsModal) statsModal.style.display = 'none';
     if (event.target === settingsModal) settingsModal.style.display = 'none';
+    if (event.target === authModal) authModal.style.display = 'none';
 });
 
 // Search functionality
@@ -141,6 +211,7 @@ function renderDecks() {
             <div class="deck-card-actions">
                 <button onclick="startStudy(${deck.id})">📖 Study</button>
                 <button onclick="editDeck(${deck.id})">✏️ Edit</button>
+                <button onclick="shareDeck(${deck.id})">📤 Share</button>
                 <button onclick="deleteDeck(${deck.id})">🗑️ Delete</button>
             </div>
         </div>
@@ -150,7 +221,7 @@ function renderDecks() {
 function updateDeckDropdown() {
     const dropdown = document.getElementById('targetDeck');
     if (decks.length === 0) {
-        dropdown.innerHTML = '<option>Create a deck first</option>';
+        dropdown.innerHTML = '<option value="">Create a deck first</option>';
     } else {
         dropdown.innerHTML = decks.map(deck => `<option value="${deck.id}">${deck.name}</option>`).join('');
     }
@@ -168,6 +239,73 @@ function deleteDeck(deckId) {
         updateDeckDropdown();
         alert('✅ Deck deleted');
     }
+}
+
+// Share Deck
+function shareDeck(deckId) {
+    const deck = decks.find(d => d.id === deckId);
+    if (!deck) return;
+    
+    const deckData = btoa(JSON.stringify({
+        name: deck.name,
+        cards: deck.cards,
+        sharedAt: new Date().toISOString()
+    }));
+    
+    const shareUrl = `${window.location.origin}?importDeck=${deckData}`;
+    const shareText = `📚 Check out my Flashlyai deck: "${deck.name}" with ${deck.cards.length} cards!`;
+    
+    // Create share options
+    const shareModal = document.createElement('div');
+    shareModal.className = 'modal';
+    shareModal.id = 'shareModal';
+    shareModal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Share "${deck.name}"</h2>
+                <button class="modal-close" onclick="document.getElementById('shareModal').remove()">✕</button>
+            </div>
+            <div style="margin-bottom: 24px;">
+                <label style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: #666; display: block; margin-bottom: 8px;">Share Link</label>
+                <input type="text" value="${shareUrl}" readonly onclick="this.select()" class="form-input" style="cursor: pointer;">
+                <small style="color: #999; display: block; margin-top: 4px;">Click to copy link</small>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="shareVia('whatsapp', '${encodeURIComponent(shareText)} ${shareUrl}')">💬 WhatsApp</button>
+                <button class="btn btn-primary" onclick="shareVia('snapchat', '${encodeURIComponent(shareText)} ${shareUrl}')">👻 Snapchat</button>
+                <button class="btn btn-primary" onclick="shareVia('sms', '${encodeURIComponent(shareText)} ${shareUrl}')">📱 SMS</button>
+                <button class="btn btn-primary" onclick="shareVia('twitter', '${encodeURIComponent(shareText)} ${shareUrl}')">𝕏 Twitter</button>
+                <button class="btn btn-secondary" onclick="copyToClipboard('${shareUrl}')">📋 Copy Link</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(shareModal);
+    shareModal.style.display = 'flex';
+    
+    shareModal.addEventListener('click', function(e) {
+        if (e.target === shareModal) shareModal.remove();
+    });
+}
+
+function shareVia(platform, text) {
+    const urls = {
+        whatsapp: `https://wa.me/?text=${text}`,
+        snapchat: `https://www.snapchat.com/`,
+        sms: `sms:?body=${text}`,
+        twitter: `https://twitter.com/intent/tweet?text=${text}`,
+        messages: `sms:?body=${text}`
+    };
+    
+    if (urls[platform]) {
+        window.open(urls[platform], '_blank');
+    }
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Link copied to clipboard!');
+    });
 }
 
 // Edit Deck - Add/Remove Cards
@@ -276,6 +414,111 @@ function closeEditForm() {
     if (form) form.remove();
 }
 
+// AI Card Generation
+function generateCards() {
+    let deckId = document.getElementById('targetDeck').value;
+    const topicText = document.getElementById('topicText').value.trim();
+    const cardCount = parseInt(document.getElementById('cardCount').value);
+    const difficulty = document.getElementById('difficulty').value;
+
+    if (!topicText) {
+        alert('Please enter a topic or source text');
+        return;
+    }
+
+    // If no deck selected, create one
+    if (!deckId) {
+        const deckName = prompt('Name your new deck (or leave blank for auto-name):');
+        if (deckName === null) return; // User cancelled
+        
+        const newDeck = {
+            id: Date.now(),
+            name: deckName.trim() || `${topicText.split(':')[0]} Deck`,
+            cards: [],
+            createdAt: new Date().toISOString(),
+            dueToday: 0,
+            mastered: 0,
+            streak: 0
+        };
+        decks.push(newDeck);
+        deckId = newDeck.id;
+        updateDeckDropdown();
+    }
+
+    // Generate smart flashcards
+    const deckIndex = decks.findIndex(d => d.id == deckId);
+    const generatedCards = generateSmartCards(topicText, cardCount, difficulty);
+
+    decks[deckIndex].cards.push(...generatedCards);
+    saveDecks();
+    renderDecks();
+    
+    alert(`✨ Generated ${generatedCards.length} cards! Cards added to "${decks[deckIndex].name}"`);
+    
+    document.getElementById('topicText').value = '';
+    switchView('decksView');
+    renderDecks();
+}
+
+function generateSmartCards(topic, count, difficulty) {
+    const cards = [];
+    const topics = topic.split(',').map(t => t.trim()).filter(t => t);
+    
+    // AI Card Generation Logic
+    const cardTemplates = {
+        'definition': (term) => ({
+            front: `What does "${term}" mean?`,
+            back: `${term} is an important concept related to ${topic.split(':')[0]}.`
+        }),
+        'explain': (term) => ({
+            front: `Explain ${term}`,
+            back: `${term} is a key aspect of ${topic.split(':')[0]} that involves understanding its role and impact.`
+        }),
+        'example': (term) => ({
+            front: `Give an example of ${term}`,
+            back: `${term} is commonly seen in practical applications of ${topic.split(':')[0]}.`
+        }),
+        'comparison': (term1, term2) => ({
+            front: `Compare ${term1} and ${term2}`,
+            back: `${term1} and ${term2} are both important concepts. ${term1} focuses on one aspect while ${term2} covers another dimension.`
+        }),
+        'importance': (term) => ({
+            front: `Why is ${term} important?`,
+            back: `${term} is crucial for understanding ${topic.split(':')[0]} because it provides fundamental knowledge.`
+        })
+    };
+    
+    let cardIndex = 0;
+    const topicTerms = topics.slice(0, 5);
+    
+    for (let i = 0; i < count && cardIndex < count; i++) {
+        const term = topicTerms[i % topicTerms.length] || `Topic ${i + 1}`;
+        const cardType = Object.keys(cardTemplates)[i % Object.keys(cardTemplates).length];
+        
+        let card;
+        if (cardType === 'comparison' && topicTerms.length > 1) {
+            const term2 = topicTerms[(i + 1) % topicTerms.length];
+            card = cardTemplates.comparison(term, term2);
+        } else {
+            card = cardTemplates[cardType](term);
+        }
+        
+        cards.push({
+            id: Date.now() + i,
+            front: card.front,
+            back: card.back,
+            difficulty: difficulty,
+            interval: 1,
+            easeFactor: 2.5,
+            nextReview: new Date().toISOString()
+        });
+        
+        cardIndex++;
+    }
+    
+    return cards;
+}
+
 // Study Mode
 let currentStudyDeck = null;
 let currentStudyCardIndex = 0;
@@ -334,7 +577,7 @@ function flipStudyCard() {
 }
 
 function answerStudyCard(response) {
-    // Simple spaced repetition logic
+    // Spaced repetition algorithm
     const card = currentStudyDeck.cards[currentStudyCardIndex];
     
     switch(response) {
@@ -374,56 +617,29 @@ function exitStudy() {
     switchView('homeView');
 }
 
-// Generate Cards (Mock)
-function generateCards() {
-    const deckId = document.getElementById('targetDeck').value;
-    const topicText = document.getElementById('topicText').value;
-    const cardCount = document.getElementById('cardCount').value;
-    const difficulty = document.getElementById('difficulty').value;
-
-    if (!topicText.trim()) {
-        alert('Please enter a topic or source text');
-        return;
-    }
-
-    if (deckId === '') {
-        alert('Please create a deck first');
-        return;
-    }
-
-    // Mock card generation
-    const deckIndex = decks.findIndex(d => d.id == deckId);
-    const count = parseInt(cardCount);
-
-    const mockCards = Array.from({length: count}, (_, i) => ({
-        id: Date.now() + i,
-        front: `${topicText.split(':')[0]} - Question ${i + 1}`,
-        back: `This is a generated answer based on ${difficulty} difficulty level`,
-        difficulty: difficulty,
-        interval: 1,
-        easeFactor: 2.5,
-        nextReview: new Date().toISOString()
-    }));
-
-    decks[deckIndex].cards.push(...mockCards);
-    decks[deckIndex].totalCards = decks[deckIndex].cards.length;
-    saveDecks();
-    
-    alert(`✨ Generated ${count} cards! Cards added to "${decks[deckIndex].name}"`);
-    
-    document.getElementById('topicText').value = '';
-    switchView('decksView');
-    renderDecks();
-}
-
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById('userEmail').textContent = currentUser.email;
+        document.getElementById('userAuthSection').style.display = 'none';
+        document.getElementById('userProfileSection').style.display = 'flex';
+        loadUserData();
+    } else {
+        document.getElementById('userAuthSection').style.display = 'flex';
+        document.getElementById('userProfileSection').style.display = 'none';
+    }
+    
     renderDecks();
     updateDeckDropdown();
 
     // Logo click to home
     document.querySelector('.logo').addEventListener('click', function() {
-        switchView('homeView');
+        if (currentUser) {
+            switchView('homeView');
+        }
     });
     
     // Load theme preference
