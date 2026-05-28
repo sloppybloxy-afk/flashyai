@@ -23,11 +23,14 @@
             </div>
         </header>
 
-        <!-- Auth Modal -->
+        <!-- Auth Modal (Always on top, can't click outside to close) -->
         <div id="authModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Sign In to Flashlyai</h2>
+            <div class="modal-content auth-modal-content">
+                <div class="auth-modal-header">
+                    <div class="logo">
+                        <div class="logo-icon">📚</div>
+                        <span class="logo-text">Flashlyai</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>EMAIL</label>
@@ -35,6 +38,7 @@
                     <small>Your data will be saved to your account</small>
                 </div>
                 <button class="btn btn-primary btn-large" onclick="loginWithEmail()">✉️ Sign In with Email</button>
+                <p style="text-align: center; color: #999; font-size: 12px; margin-top: 16px;">New user? Just enter your email to create an account</p>
             </div>
         </div>
 

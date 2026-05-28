@@ -27,8 +27,8 @@ function loginWithEmail() {
     document.getElementById('userAuthSection').style.display = 'none';
     document.getElementById('userProfileSection').style.display = 'flex';
     
-    switchView('homeView');
-    alert(`✅ Welcome, ${email}!`);
+    // Reload to show user account with all decks
+    location.reload();
 }
 
 function logout() {
@@ -46,8 +46,8 @@ function logout() {
         document.getElementById('userProfileSection').style.display = 'none';
         document.getElementById('authEmail').value = '';
         
-        switchView('homeView');
-        alert('Logged out successfully');
+        // Reload to show login screen
+        location.reload();
     }
 }
 
@@ -113,7 +113,7 @@ window.addEventListener('click', function(event) {
     if (event.target === searchModal) searchModal.style.display = 'none';
     if (event.target === statsModal) statsModal.style.display = 'none';
     if (event.target === settingsModal) settingsModal.style.display = 'none';
-    if (event.target === authModal) authModal.style.display = 'none';
+    // Don't close auth modal by clicking outside
 });
 
 // Search functionality
@@ -273,7 +273,7 @@ function shareDeck(deckId) {
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button class="btn btn-primary" onclick="shareVia('whatsapp', '${encodeURIComponent(shareText)} ${shareUrl}')">💬 WhatsApp</button>
                 <button class="btn btn-primary" onclick="shareVia('snapchat', '${encodeURIComponent(shareText)} ${shareUrl}')">👻 Snapchat</button>
-                <button class="btn btn-primary" onclick="shareVia('sms', '${encodeURIComponent(shareText)} ${shareUrl}')">📱 SMS</button>
+                <button class="btn btn-primary" onclick="shareVia('sms', '${encodeURIComponent(shareText)} ${shareUrl}')" >📱 SMS</button>
                 <button class="btn btn-primary" onclick="shareVia('twitter', '${encodeURIComponent(shareText)} ${shareUrl}')">𝕏 Twitter</button>
                 <button class="btn btn-secondary" onclick="copyToClipboard('${shareUrl}')">📋 Copy Link</button>
             </div>
@@ -621,15 +621,21 @@ function exitStudy() {
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
     const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
+    
+    if (!savedUser) {
+        // Show auth modal if not logged in
+        document.getElementById('authModal').style.display = 'flex';
+        document.getElementById('userAuthSection').style.display = 'flex';
+        document.getElementById('userProfileSection').style.display = 'none';
+        document.getElementById('authEmail').focus();
+    } else {
+        // User is logged in
         currentUser = JSON.parse(savedUser);
+        document.getElementById('authModal').style.display = 'none';
         document.getElementById('userEmail').textContent = currentUser.email;
         document.getElementById('userAuthSection').style.display = 'none';
         document.getElementById('userProfileSection').style.display = 'flex';
         loadUserData();
-    } else {
-        document.getElementById('userAuthSection').style.display = 'flex';
-        document.getElementById('userProfileSection').style.display = 'none';
     }
     
     renderDecks();
