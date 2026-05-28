@@ -75,14 +75,9 @@
                     <button class="btn btn-secondary btn-large" onclick="toggleTheme()">🌙 Toggle Dark Mode</button>
                 </div>
                 <div class="settings-group">
-                    <h3>Data Management</h3>
-                    <button class="btn btn-secondary btn-large" onclick="exportData()">📥 Export Data</button>
-                    <button class="btn btn-secondary btn-large" onclick="clearAllData()" style="margin-top: 8px; background-color: #ffcccc; border-color: #cc0000;">🗑️ Clear All Data</button>
-                </div>
-                <div class="settings-group">
                     <h3>About</h3>
                     <p>Flashlyai v1.0</p>
-                    <p style="color: #666; font-size: 14px; margin-top: 8px;">Study smarter with AI-powered flashcard generation</p>
+                    <p style="margin-top: 8px;">Study smarter with AI-powered flashcard generation</p>
                 </div>
             </div>
         </div>
@@ -239,6 +234,35 @@
                 </div>
 
                 <button class="btn btn-secondary" onclick="switchView('homeView')">← Back to Home</button>
+            </section>
+
+            <!-- Study View -->
+            <section class="study-view" id="studyView" style="display: none;">
+                <div class="study-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h1 id="studyDeckName">Study</h1>
+                        <button class="btn btn-secondary" onclick="exitStudy()">✕ Exit Study</button>
+                    </div>
+                    <div class="study-progress">
+                        <div class="study-progress-bar" id="studyProgressBar" style="width: 0%;"></div>
+                    </div>
+                    <p style="margin-top: 12px; font-size: 14px;"><span id="studyCardIndex">0</span> / <span id="studyCardTotal">0</span></p>
+                </div>
+
+                <div class="study-container">
+                    <div class="study-card" id="studyCard" onclick="flipStudyCard()">
+                        <p class="study-card-label" id="studyCardLabel">Front</p>
+                        <p class="study-card-content" id="studyCardContent"></p>
+                        <p class="study-flip-hint">Click to flip</p>
+                    </div>
+                </div>
+
+                <div class="study-controls" id="studyControls">
+                    <button class="btn btn-again" onclick="answerStudyCard('again')">Again 🔴</button>
+                    <button class="btn btn-hard" onclick="answerStudyCard('hard')">Hard 🟡</button>
+                    <button class="btn btn-good" onclick="answerStudyCard('good')">Good 🔵</button>
+                    <button class="btn btn-easy" onclick="answerStudyCard('easy')">Easy 🟢</button>
+                </div>
             </section>
         </main>
 
