@@ -9,15 +9,26 @@ function loginWithEmail() {
         return;
     }
     
+    // Create device fingerprint
+    const deviceFingerprint = generateDeviceFingerprint();
+    
     // Simulate authentication - in production, this would call your backend
     currentUser = {
         email: email,
         id: btoa(email), // Simple encoding for demo
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        deviceFingerprint: deviceFingerprint
     };
     
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     localStorage.setItem('userEmail', email);
+    localStorage.setItem('deviceFingerprint', deviceFingerprint);
+    localStorage.setItem('lastLoginDevice', JSON.stringify({
+        fingerprint: deviceFingerprint,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        platform: navigator.platform
+    }));
     
     // Load user's decks from localStorage (in production, fetch from server)
     loadUserData();
@@ -31,12 +42,66 @@ function loginWithEmail() {
     location.reload();
 }
 
+function generateDeviceFingerprint() {
+    // Create a unique identifier based on device properties
+    const fingerprint = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        hardwareConcurrency: navigator.hardwareConcurrency,
+        deviceMemory: navigator.deviceMemory,
+        maxTouchPoints: navigator.maxTouchPoints,
+        vendor: navigator.vendor,
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+        screenColorDepth: window.screen.colorDepth,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+    
+    // Create hash of the fingerprint
+    return btoa(JSON.stringify(fingerprint));
+}
+
+function isDeviceRecognized() {
+    const savedFingerprint = localStorage.getItem('deviceFingerprint');
+    const currentFingerprint = generateDeviceFingerprint();
+    
+    if (!savedFingerprint) {
+        return false;
+    }
+    
+    return savedFingerprint === currentFingerprint;
+}
+
 function logout() {
     if (confirm('Are you sure you want to log out?')) {
         currentUser = null;
         localStorage.removeItem('currentUser');
         localStorage.removeItem('userEmail');
         localStorage.removeItem('flashyDecks');
+        localStorage.removeItem('deviceFingerprint');
+        localStorage.removeItem('lastLoginDevice');
+        
+        decks = [];
+        renderDecks();
+        updateDeckDropdown();
+        
+        document.getElementById('userAuthSection').style.display = 'flex';
+        document.getElementById('userProfileSection').style.display = 'none';
+        document.getElementById('authEmail').value = '';
+        
+        // Reload to show login screen
+        location.reload();
+    }
+}
+
+function logoutFromAllDevices() {
+    if (confirm('This will log you out from all devices. Continue?')) {
+        currentUser = null;
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('flashyDecks');
+        localStorage.removeItem('deviceFingerprint');
+        localStorage.removeItem('lastLoginDevice');
         
         decks = [];
         renderDecks();
@@ -621,21 +686,29 @@ function exitStudy() {
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
     const savedUser = localStorage.getItem('currentUser');
+    const isDeviceKnown = isDeviceRecognized();
     
-    if (!savedUser) {
-        // Show auth modal if not logged in
-        document.getElementById('authModal').style.display = 'flex';
-        document.getElementById('userAuthSection').style.display = 'flex';
-        document.getElementById('userProfileSection').style.display = 'none';
-        document.getElementById('authEmail').focus();
-    } else {
-        // User is logged in
+    if (savedUser && isDeviceKnown) {
+        // User is logged in on this device - auto-login
         currentUser = JSON.parse(savedUser);
         document.getElementById('authModal').style.display = 'none';
         document.getElementById('userEmail').textContent = currentUser.email;
         document.getElementById('userAuthSection').style.display = 'none';
         document.getElementById('userProfileSection').style.display = 'flex';
         loadUserData();
+    } else if (savedUser && !isDeviceKnown) {
+        // User data exists but device has changed - require re-auth
+        document.getElementById('authModal').style.display = 'flex';
+        document.getElementById('userAuthSection').style.display = 'flex';
+        document.getElementById('userProfileSection').style.display = 'none';
+        document.getElementById('authEmail').focus();
+        alert('🔐 Device not recognized. Please sign in again for security.');
+    } else {
+        // No user data - show auth modal
+        document.getElementById('authModal').style.display = 'flex';
+        document.getElementById('userAuthSection').style.display = 'flex';
+        document.getElementById('userProfileSection').style.display = 'none';
+        document.getElementById('authEmail').focus();
     }
     
     renderDecks();

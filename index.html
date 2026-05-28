@@ -35,7 +35,7 @@
                 <div class="form-group">
                     <label>EMAIL</label>
                     <input type="email" id="authEmail" class="form-input" placeholder="Enter your email" onkeypress="if(event.key==='Enter') loginWithEmail()">
-                    <small>Your data will be saved to your account</small>
+                    <small>Your data will be saved to this device and account</small>
                 </div>
                 <button class="btn btn-primary btn-large" onclick="loginWithEmail()">✉️ Sign In with Email</button>
                 <p style="text-align: center; color: #999; font-size: 12px; margin-top: 16px;">New user? Just enter your email to create an account</p>
@@ -100,7 +100,9 @@
                     </div>
                     <div id="userProfileSection" style="display: none;">
                         <p style="margin-bottom: 12px;">Signed in as: <strong id="userEmail"></strong></p>
-                        <button class="btn btn-secondary btn-large" style="background-color: #ffcccc; border-color: #cc0000;" onclick="logout()">🚪 Logout</button>
+                        <button class="btn btn-secondary btn-large" style="margin-bottom: 8px;" onclick="logout()">🚪 Logout (This Device)</button>
+                        <button class="btn btn-secondary btn-large" style="background-color: #ffcccc; border-color: #cc0000;" onclick="logoutFromAllDevices()">🚪 Logout (All Devices)</button>
+                        <p style="margin-top: 12px; font-size: 12px; color: #999;">This device is recognized and will auto-login</p>
                     </div>
                 </div>
                 <div class="settings-group">
